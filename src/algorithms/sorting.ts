@@ -45,7 +45,7 @@ function quickSortRecursive<T>(a: T[], low: number, high: number, compare: Compa
   // Boucle sur la plus grande partie et récurse sur la plus petite : la profondeur de pile reste en 0(log n) même dans un pire cas
   while (low < high) {
     // Choix du point (médiane)
-    const middle = low + ((high - low) >> 1);
+    const middle = low + Math.floor((high - low) / 2);
     const point = median(a[low], a[middle], a[high], compare);
 
     // Partition
