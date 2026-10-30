@@ -1,4 +1,4 @@
-import type { VChild, VNode } from "../types"
+import type { VChild } from "../types"
 
 // On note dans la WeakMap les éléments auxquels une fonction est accrochée (ex. onClick), pour que lors d'un re-rendu on puisse enlever l'ancienne fonction de l'élément et lui en donner une nouvelle si besoin.
 
@@ -28,7 +28,7 @@ export function setProp(el: HTMLElement, key: string, value: unknown): void {
     return;
   }
 
-  // on peut ajouter du style directement h('p', { style: 'color: red; margin: 10px' }, 'Texte'), même si c'est une mauvaise pratique
+  // on peut ajouter du style directement h('p', { style: 'color: red; margin: 10px' }, 'Texte')
   if (key === "style") {
     if (typeof value === "string") {
       el.setAttribute("style", value);
