@@ -14,13 +14,21 @@ export class StackRouter {
     // Au démarage on empile la page accueil et on l'affiche
     this.stack.push(location.pathname)
     this.renderCurrent()
+
+    window.addEventListener('popstate', () => {
+      if(this.stack.length > 1) this.stack.pop()
+        this.renderCurrent()
+    })
   }
 
   navigate(path: string): void {
-    throw new Error('TODO');
+    this.stack.push(path)
+    history.pushState(null, '', path)
+    this.renderCurrent()
   } 
+
   back(): void {
-    throw new Error('TODO');
+    history.back()
   }
 
   match(path: string): MatchResult | null {
@@ -56,7 +64,7 @@ export class StackRouter {
   }
 
   refresh(): void {
-    throw new Error('TODO');
+    this.renderCurrent()
   }
 
   private renderCurrent(): void {

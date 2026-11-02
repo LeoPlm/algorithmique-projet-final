@@ -37,4 +37,4 @@ if (!rootElement) {
   throw Error("Root element not found");
 }
 
-const router = new StackRouter(routes, document.getElementById('root')!)
+new StackRouter(routes, document.getElementById('root')!)
