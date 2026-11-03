@@ -1,9 +1,9 @@
 import { mount } from '../framework/render';
 import { h } from "../framework/vdom"
-import type { Route, MatchResult, RouteParams } from '../types';
+import type { Route, MatchResult, RouteParams, VNode } from '../types';
 
 
-export class StackRouter {
+class StackRouter {
   private routes: Route[]
   private root: HTMLElement
   private stack: string[] = []
@@ -79,4 +79,25 @@ export class StackRouter {
       mount(h("p", null, "Page introuvable"), this.root)
     }
   }
+}
+
+
+// Instancier le router
+export let router: StackRouter
+
+export function createRouter(routes: Route[], root: HTMLElement): StackRouter {
+  router = new StackRouter(routes, document.getElementById('root')!)
+  return router
+}
+
+// Helper pour les liens
+/** Lien interne : navigue via le routeur au lieu de recharger la page */
+export function link(path: string, label: string): VNode {
+  return h("a", {
+    href: path,                     // garde un vrai lien (survol, clic molette…)
+    onClick: (e: Event) => {
+      e.preventDefault();           // empêche le rechargement de la page
+      router.navigate(path);        // push sur la pile + rendu
+    },
+  }, label);
 }

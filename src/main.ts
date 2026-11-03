@@ -1,5 +1,5 @@
 import type { Route } from "./types"
-import { StackRouter } from "./router/stackRouter"
+import { createRouter } from "./router/stackRouter"
 import { homePage } from "./pages/home"
 import { productDetailPage } from "./pages/productDetail"
 import { productListPage } from "./pages/productList"
@@ -31,10 +31,10 @@ const routes: Route[] = [
 ]
 
 // Code final
-const rootElement = document.getElementById("root");
+const rootElement = document.getElementById("root")
 
 if (!rootElement) {
-  throw Error("Root element not found");
+  throw Error("Root element not found")
 }
 
-new StackRouter(routes, document.getElementById('root')!)
+createRouter(routes, rootElement)
