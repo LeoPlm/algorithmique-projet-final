@@ -2,7 +2,7 @@ import type { Compare, SortAlgorithm } from "../types"
 
 // TRI PAR INSERTION
 // - Pour chaque nouvel élément, le décale vers la gauche jusqu'à sa bonne place
-// - Complexité temps : 0(n²) en moyenne et pire cas, O(n) en meilleur cas si déjà trié
+// - Complexité temps : O(n²) en moyenne et pire cas, O(n) en meilleur cas si déjà trié
 // - Complexité espace : O(n) à cause de la copie initiale
 export function insertionSort<T>(arr: readonly T[], compare: Compare<T>): T[] {
   const result = [...arr]; // Copie pour ne pas muter l'entrée
@@ -42,7 +42,7 @@ function median<T>(a: T, b: T, c: T, compare: Compare<T>): T {
 
 // Tri rapide récursif, partition en trois zones et efficace avec beaucoup de doublons
 function quickSortRecursive<T>(a: T[], low: number, high: number, compare: Compare<T>): void {
-  // Boucle sur la plus grande partie et récurse sur la plus petite : la profondeur de pile reste en 0(log n) même dans un pire cas
+  // Boucle sur la plus grande partie et récurse sur la plus petite : la profondeur de pile reste en O(log n) même dans un pire cas
   while (low < high) {
     // Choix du point (médiane)
     const middle = low + Math.floor((high - low) / 2);
@@ -58,12 +58,17 @@ function quickSortRecursive<T>(a: T[], low: number, high: number, compare: Compa
 
       if (c < 0) { // Plus petit, l'envoie à gauche
         const temp = a[lessThan++];
-        a[lessThan++] = a[i++];
-        a[i++] = temp;
+
+        a[lessThan] = a[i];
+        a[i] = temp;
+        lessThan++;
+        i++;
       } else if (c > 0) { // Plus grand : l'envoie à droite
         const temp = a[i];
-        a[i] = a[greaterThan--];
-        a[greaterThan--] = temp;
+
+        a[i] = a[greaterThan];
+        a[greaterThan] = temp;
+        greaterThan--;
       } else { // Égal au point, reste au milieu
         i++;
       }
@@ -118,7 +123,7 @@ function merge<T>(left: T[], right: T[], compare: Compare<T>): T[] {
 }
 
 // - Couper le tableau en deux moitiés, trier chacune récursivement, puis les fusionner
-// - Complexité temps : 0(n log n) dans tous les cas (log n niveaux de découpe, 0(n) de fusion par niveau)
+// - Complexité temps : O(n log n) dans tous les cas (log n niveaux de découpe, O(n) de fusion par niveau)
 // - Complexité espace : O(n) pour les tableaux auxiliaires de fusion
 export function mergeSort<T>(arr: readonly T[], compare: Compare<T>): T[] {
   // Cas de base : 0 ou 1 élement, déjà trié
