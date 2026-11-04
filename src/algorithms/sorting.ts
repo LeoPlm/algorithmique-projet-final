@@ -57,7 +57,7 @@ function quickSortRecursive<T>(a: T[], low: number, high: number, compare: Compa
       const c = compare(a[i], point);
 
       if (c < 0) { // Plus petit, l'envoie à gauche
-        const temp = a[lessThan++];
+        const temp = a[lessThan];
 
         a[lessThan] = a[i];
         a[i] = temp;

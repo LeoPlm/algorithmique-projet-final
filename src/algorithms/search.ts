@@ -1,5 +1,3 @@
-import type { Compare } from '../types';
-
 // RECHERCHE LINÉAIRE
 // Parcourt tout le tableau et retourne tous les éléments
 // - Complexité temps : O(n), chaque élément est testé exactement une fois
@@ -22,7 +20,7 @@ export function linearSearch<T>(arr: readonly T[], predicate: (item: T) => boole
 // - À chaque étape on compare target à l'élément du milieu, ce qui permet d'éliminer la moitié de l'intervalle de recherche
 // - Complexité temps : O(log n), l'intervalle est divisé par 2 à chaque tour
 // - Complexité espace : O(1)
-export function binarySearch<T>(sorted: readonly T[], target: T, compare: Compare<T>): number  {
+export function binarySearch<T, K>(sorted: readonly T[], target: K, compare: (item: T, target: K) => number): number  {
   let low = 0;
   let high = sorted.length - 1;
 
@@ -48,6 +46,7 @@ export function binarySearch<T>(sorted: readonly T[], target: T, compare: Compar
 // Depuis cet indice, on avance tant que la saisie commence bien par le préfixe
 // - Complexité temps : O(log n + k), k étant le nombre de résultats ; O(log n) pour trouver le premier, et O(k) pour les collecter
 // - Complexité espace : O(k) pour le résultat
+// Le tableau doit être trié avec la même comparaison (noms en minuscules comparés avec </>, pas localeCompare), sinon les accents faussent la recherche
 export function binarySearchPrefix<T>(sorted: readonly T[], prefix: string, key: (item: T) => string): T[] {
   const p = prefix.toLowerCase();
   const n = p.length;
