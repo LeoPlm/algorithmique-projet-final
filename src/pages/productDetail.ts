@@ -23,8 +23,8 @@ function findProductById(rawId: string | undefined): Product | undefined {
     return undefined;
   }
 
-  const target = { id } as Product;
-  const index = binarySearch(productsById, target, byId);
+  // On cherche directement un nombre (K = number) : pas besoin de fabriquer un faux Product
+  const index = binarySearch(productsById, id, (p, target) => p.id - target);
 
   return index === -1 ? undefined : productsById[index];
 }

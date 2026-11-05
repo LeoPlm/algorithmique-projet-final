@@ -4,25 +4,6 @@ import { homePage } from "./pages/home"
 import { productDetailPage } from "./pages/productDetail"
 import { productListPage } from "./pages/productList"
 
-type Attributes = Record<string, string>
-
-interface VirtualString {
-  type: "string"
-  content: string
-}
-
-interface VirtualElement {
-  type: "element"
-  name: string
-  attributes: Attributes
-  children: Array<VirtualNode>
-}
-
-type VirtualNode =
-  | VirtualElement
-  | VirtualString
-
-
 // Les routes
 const routes: Route[] = [
   { path : "/", component : homePage },
@@ -30,11 +11,12 @@ const routes: Route[] = [
   { path : "/product/:id", component : productDetailPage },
 ]
 
-// Code final
+// Point de montage de l'application (index.html)
 const rootElement = document.getElementById("root")
 
 if (!rootElement) {
   throw Error("Root element not found")
 }
 
+// Démarre le routeur : il affiche la page correspondant à l'URL actuelle
 createRouter(routes, rootElement)

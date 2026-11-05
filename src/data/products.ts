@@ -2,7 +2,7 @@ import type { Product } from "../types";
 
 // Jeu de données de test : volontairement NON trié (ni par id, ni par prix, ni par nom)
 // pour pouvoir vérifier visuellement que les algorithmes de tri fonctionnent.
-export const baseProducts: Product[] = [
+const baseProducts: Product[] = [
   { id: 4, name: "Clavier mécanique", category: "Informatique", price: 89.9, stock: 12, rating: 4.5, description: "Clavier mécanique switches rouges, rétroéclairage RGB." },
   { id: 1, name: "Casque audio", category: "Audio", price: 59.99, stock: 30, rating: 4.1, description: "Casque circum-auriculaire sans fil, 30 h d'autonomie." },
   { id: 7, name: "Lampe de bureau", category: "Maison", price: 24.5, stock: 0, rating: 3.8, description: "Lampe LED orientable avec 3 niveaux de luminosité." },
@@ -13,14 +13,17 @@ export const baseProducts: Product[] = [
   { id: 5, name: "Micro USB", category: "Audio", price: 69.0, stock: 3, rating: 4.4, description: "Microphone à condensateur USB pour streaming et podcast." },
 ];
 
+// Types de produits par catégorie, pour que les noms générés restent cohérents
 const catalog: Record<string, string[]> = {
   Informatique: ["Clavier", "Souris", "Écran", "Webcam", "Disque SSD", "Hub USB"],
   Audio: ["Casque", "Enceinte", "Micro", "Écouteurs", "Ampli"],
   Maison: ["Lampe", "Bouilloire", "Ventilateur", "Grille-pain", "Aspirateur"],
 }
 
+// Suffixes ajoutés au nom ("Clavier Pro 42")
 const adjectives = ["Pro", "Mini", "Max", "Lite", "Ultra", "Eco", "Plus"];
 
+// Entier aléatoire entre min et max (inclus)
 function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -30,6 +33,8 @@ function pick<T>(arr: readonly T[]): T {
   return arr[randomInt(0, arr.length - 1)];
 }
 
+// Génère `count` produits fictifs, avec des ids qui commencent à `firstId`
+// Complexité : O(n), un seul tour de boucle par produit
 export function generateProducts(count: number, firstId: number): Product[] {
   const categories = Object.keys(catalog)
   const result: Product[] = []
@@ -51,9 +56,12 @@ export function generateProducts(count: number, firstId: number): Product[] {
   return result
 }
 
-// Catalogue final
+// Nombre total de produits du catalogue : assez grand pour voir la différence
+// entre le tri par insertion O(n²) et les tris rapide / fusion O(n log n)
+const CATALOG_SIZE = 5000
 
+// Catalogue final : les produits écrits à la main, puis les produits générés (ids 9, 10, 11…)
 export const products: Product[] = [
     ...baseProducts,
-    ...generateProducts(500, baseProducts.length + 1)  
+    ...generateProducts(CATALOG_SIZE - baseProducts.length, baseProducts.length + 1)
 ]

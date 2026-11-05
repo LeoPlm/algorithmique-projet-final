@@ -1,5 +1,5 @@
 import type { VChild, Patch, Props } from "../types"
-import { render, setProp, removeProp } from"../framework/render"
+import { render, setProp, removeProp } from "../framework/renderer"
 
 /**
  * DIFF : compare récursivement l'ancien et le nouvel arbre virtuel

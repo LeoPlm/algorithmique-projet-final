@@ -45,13 +45,16 @@ index.html
 src/
 ├── main.ts                    # point d'entrée : déclare les routes, démarre le routeur
 ├── types/index.ts             # CONTRAT D'INTERFACE (voir §7) — source de vérité des types
-├── data/products.ts           # export const products: Product[]
+├── data/
+│   ├── products.ts            # export const products: Product[] (+ generateProducts)
+│   └── images.ts              # URL des photos + icône de secours
 ├── algorithms/
 │   ├── sorting.ts             # insertionSort, quickSort, mergeSort
 │   ├── search.ts              # linearSearch, binarySearch
 │   └── diff.ts                # diff, patch (bonus)
 ├── framework/
 │   ├── vdom.ts                # h() — hyperscript → VNode
+│   ├── hooks.ts               # useState / useEffect (bonus)
 │   └── renderer.ts            # render() — VNode → DOM réel (récursif)
 ├── router/stackRouter.ts      # navigate(), back(), match() — pile + History API
 └── pages/

@@ -1,4 +1,4 @@
-import { mount } from '../framework/render'
+import { mount } from '../framework/renderer'
 import { h } from "../framework/vdom"
 import type { Route, MatchResult, RouteParams, VNode } from '../types'
 import { diff, patch } from "../algorithms/diff"
@@ -19,20 +19,28 @@ class StackRouter {
     setRerender(() => this.refresh())
     this.renderCurrent()
 
+    // Bouton retour du navigateur : on dépile et on affiche la page précédente
     window.addEventListener('popstate', () => {
       if(this.stack.length > 1) this.stack.pop()
-        this.renderCurrent()
+      this.renderCurrent()
     })
   }
 
+  // Empile la nouvelle page, met à jour l'URL (sans recharger) et l'affiche
   navigate(path: string): void {
     this.stack.push(path)
     history.pushState(null, '', path)
     this.renderCurrent()
-  } 
+  }
 
+  // Retour : history.back() déclenche popstate, qui dépile et ré-affiche.
+  // Si la pile n'a qu'une page (arrivée directe par l'URL), on va à l'accueil au lieu de quitter le site.
   back(): void {
-    history.back()
+    if(this.stack.length > 1) {
+      history.back()
+    } else {
+      this.navigate('/')
+    }
   }
 
   match(path: string): MatchResult | null {

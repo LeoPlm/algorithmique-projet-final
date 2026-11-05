@@ -16,8 +16,17 @@ const norm = (s: string): string => s.toLowerCase().normalize("NFD").replace(/[\
 // Comparaison des chaînes simples
 const compare = (x: string, y: string): number => (x < y ? -1 : x > y ? 1 : 0);
 
+// Noms normalisés calculés UNE seule fois au chargement (O(n)).
+// Sinon norm() serait recalculé à chaque comparaison : avec 5000 produits, le tri par insertion
+// en fait des millions (environ 7x plus lent mesuré).
+const normalizedNames = new Map<Product, string>();
+for (const p of products) {
+    normalizedNames.set(p, norm(p.name));
+}
+const normName = (p: Product): string => normalizedNames.get(p) ?? norm(p.name);
+
 // Tri par nom normalisé car demandé par binarySearchPrefix
-const byName: Compare<Product> = (a, b) => compare(norm(a.name), norm(b.name));
+const byName: Compare<Product> = (a, b) => compare(normName(a), normName(b));
 const byPrice: Compare<Product> = (a, b) => a.price - b.price;
 const byRating: Compare<Product> = (a, b) => a.rating - b.rating;
 
@@ -115,7 +124,7 @@ export function productListPage(): VNode {
 
     if (q !== "") {
         if (searchMode === "linear") {
-            const r = timed(() => linearSearch(products, (p) => norm(p.name).includes(qn)));
+            const r = timed(() => linearSearch(products, (p) => normName(p).includes(qn)));
 
             found = r.value;
             searchMs = r.ms;
@@ -126,7 +135,7 @@ export function productListPage(): VNode {
             const prep = timed(() => sortBy(sortAlgorithm, products, byName));
             prepMs = prep.ms;
 
-            const r = timed(() => binarySearchPrefix(prep.value, qn, (p) => norm(p.name)));
+            const r = timed(() => binarySearchPrefix(prep.value, qn, normName));
 
             found = r.value;
             searchMs = r.ms;
