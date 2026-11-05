@@ -77,6 +77,7 @@ class StackRouter {
     const patches = diff(this.currentVNode, newVNode)
     patch(this.root, patches)
     this.currentVNode = newVNode
+    runEffects()
   }
 
   // Construit le VNode de la page au sommet de la pile (n'affiche rien)

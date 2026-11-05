@@ -1,19 +1,13 @@
 import { h } from "../framework/vdom";
-import type { VNode, Compare, Product, SortAlgorithm } from "../types";
+import type { VNode, Compare, Product, SortAlgorithm, SearchAlgorithm } from "../types";
 import { products } from "../data/products";
-import { link, router } from "../router/stackRouter";
+import { link } from "../router/stackRouter";
 import { sortBy } from "../algorithms/sorting";
 import { linearSearch, binarySearchPrefix } from "../algorithms/search";
+import { useState, useEffect } from "../framework/hooks";
 
-type SearchMode = "linear" | "binary";
 type Criteria = "name" | "price" | "rating";
 type Order = "asc" | "desc";
-
-let query = ""; // Recherche
-let searchMode: SearchMode = "linear"; // Algorithme de recherche
-let sortAlgorithm: SortAlgorithm = "merge"; // Algorithme de tri
-let criteria: Criteria = "name"; // Colonne de tri
-let order: Order = "asc"; // Sens du tri
 
 // Normalise le texte en minuscules et suppression d'accents pour comparaison brute des caractères
 const norm = (s: string): string => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -50,47 +44,6 @@ function timed<T>(fn: () => T): { value: T, ms: number } {
 // Format pour mieux voir la durée
 const format = (ms: number): string => `${ms.toFixed(3)} ms`;
 
-// Re-rendu de la page. mount() vide le conteneur et recrée tout le DOM : la barre de recherche est donc un nouvel élément qui n'a pas le focus, et on le lui rend avec le curseur là où l'utilisateur tapait, pour continuer
-function refreshKeepingSearchFocus(pos: number | null): void {
-    router.refresh();
-
-    const input = document.getElementById("search-input") as HTMLInputElement | null;
-
-    if (input) {
-        input.focus();
-
-        const position = pos ?? input.value.length;
-        input.setSelectionRange(position, position);
-    }
-}
-
-const onSearchInput = (e: Event): void => {
-    const input = e.target as HTMLInputElement;
-
-    query = input.value;
-    refreshKeepingSearchFocus(input.selectionStart);
-};
-
-const onSearchModeChange = (e: Event): void => {
-    searchMode = (e.target as HTMLSelectElement).value as SearchMode;
-    router.refresh();
-};
-
-const onSortAlgoChange = (e: Event): void => {
-    sortAlgorithm = (e.target as HTMLSelectElement).value as SortAlgorithm;
-    router.refresh();
-};
-
-const onCriteriaChange = (e: Event): void => {
-    criteria = (e.target as HTMLSelectElement).value as Criteria;
-    router.refresh();
-};
-
-const onOrderChange = (e: Event): void => {
-    order = (e.target as HTMLSelectElement).value as Order;
-    router.refresh();
-};
-
 // Liste déroulante
 function selectField(
     id: string,
@@ -120,6 +73,25 @@ function productRow(p: Product): VNode {
 }
 
 export function productListPage(): VNode {
+    const [query, setQuery] = useState("") // Recherche
+    const [searchMode, setSearchMode] = useState<SearchAlgorithm>("linear") // Algorithme de recherche
+    const [sortAlgorithm, setSortAlgorithm] = useState<SortAlgorithm>("merge") // Algorithme de tri
+    const [criteria, setCriteria] = useState<Criteria>("name") // Colonne de tri
+    const [order, setOrder] = useState<Order>("asc") // Sens du tri
+
+    // Handlers : chaque setter met à jour l'état ET relance le rendu (plus besoin de router.refresh()).
+    // Grâce à diff/patch, l'<input> n'est pas recréé : il garde le focus et la position du curseur.
+    const onSearchInput = (e: Event): void => setQuery((e.target as HTMLInputElement).value)
+    const onSearchModeChange = (e: Event): void => setSearchMode((e.target as HTMLSelectElement).value as SearchAlgorithm)
+    const onSortAlgoChange = (e: Event): void => setSortAlgorithm((e.target as HTMLSelectElement).value as SortAlgorithm)
+    const onCriteriaChange = (e: Event): void => setCriteria((e.target as HTMLSelectElement).value as Criteria)
+    const onOrderChange = (e: Event): void => setOrder((e.target as HTMLSelectElement).value as Order)
+
+    // Effet : après un affichage où `query` a changé, on met à jour le titre de l'onglet
+    useEffect(() => {
+        document.title = query.trim() === "" ? "Produits" : `Produits : « ${query.trim()} »`
+    }, [query])
+
     const q = query.trim();
     const qn = norm(q);
 
@@ -150,7 +122,7 @@ export function productListPage(): VNode {
     const sortResult = timed(() => sortBy(sortAlgorithm, found, buildComparator(criteria, order)));
     const displayed = sortResult.value;
 
-    const modeLabel = searchMode == "linear" ? "linéaire" : "binaire";
+    const modeLabel = searchMode === "linear" ? "linéaire" : "binaire";
     const algoLabel: Record<SortAlgorithm, string> = {
         insertion: "insertion",
         quick: "rapide",
