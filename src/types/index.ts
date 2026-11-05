@@ -10,7 +10,7 @@ export interface Product {
 
 export type Props = Record<string, unknown> & { key?: string | number }
 
-// VNode peut être une string car les engant d'une balise html peuvent être une balise ou du simple texte
+// VNode peut être une string car les enfant d'une balise html peuvent être une balise ou du simple texte
 export type VChild = VNode | string;
 
 export interface VNode {

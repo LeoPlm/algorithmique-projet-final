@@ -1,18 +1,22 @@
-import { mount } from '../framework/render';
+import { mount } from '../framework/render'
 import { h } from "../framework/vdom"
-import type { Route, MatchResult, RouteParams, VNode } from '../types';
+import type { Route, MatchResult, RouteParams, VNode } from '../types'
+import { diff, patch } from "../algorithms/diff"
+import { prepareRender, resetHooks, runEffects, setRerender } from '../framework/hooks'
 
 
 class StackRouter {
   private routes: Route[]
   private root: HTMLElement
   private stack: string[] = []
+  private currentVNode: VNode | null = null
 
   constructor(routes: Route[], root: HTMLElement) {
     this.routes = routes
     this.root = root
     // Au démarage on empile la page accueil et on l'affiche
     this.stack.push(location.pathname)
+    setRerender(() => this.refresh())
     this.renderCurrent()
 
     window.addEventListener('popstate', () => {
@@ -64,29 +68,42 @@ class StackRouter {
   }
 
   refresh(): void {
-    this.renderCurrent()
+    if(!this.currentVNode) {
+      this.renderCurrent()
+      return
+    }
+
+    const newVNode = this.buildCurrent()
+    const patches = diff(this.currentVNode, newVNode)
+    patch(this.root, patches)
+    this.currentVNode = newVNode
   }
 
-  private renderCurrent(): void {
-    // Le sommet de la pile = dernier élément du tableau.
+  // Construit le VNode de la page au sommet de la pile (n'affiche rien)
+  private buildCurrent(): VNode {
+    prepareRender()
     const path = this.stack[this.stack.length-1]
     const result = this.match(path)
 
-    if(result) {
-      mount(result.route.component(result.params), this.root)
-    } else {
-      // 404
-      mount(h("p", null, "Page introuvable"), this.root)
-    }
+    if(result) return result.route.component(result.params)
+    return h("p", null, "Page introuvable")
+  }
+
+  // Changement de page : on reconstruit tout le DOM
+  private renderCurrent(): void {
+    resetHooks()
+    const vnode = this.buildCurrent()
+    mount(vnode, this.root)
+    this.currentVNode = vnode //On le mémorise pour le prochain diff
+    runEffects()
   }
 }
-
 
 // Instancier le router
 export let router: StackRouter
 
 export function createRouter(routes: Route[], root: HTMLElement): StackRouter {
-  router = new StackRouter(routes, document.getElementById('root')!)
+  router = new StackRouter(routes, root)
   return router
 }
 
