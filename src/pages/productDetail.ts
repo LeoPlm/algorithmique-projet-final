@@ -4,6 +4,7 @@ import { router, link } from "../router/stackRouter";
 import { products } from "../data/products";
 import { mergeSort } from "../algorithms/sorting";
 import { binarySearch } from "../algorithms/search";
+import { imageUrl, categoryIcon, showIconOnError, showImageOnLoad } from "../data/images";
 
 // Comparateur id
 const byId: Compare<Product> = (a, b) => a.id - b.id;
@@ -56,6 +57,18 @@ export function productDetailPage(params: RouteParams): VNode {
 
   return h("div", null, backButton(),
       h("h1", null, product.name),
+      // Photo du produit, avec l'icône de la catégorie en secours si elle ne charge pas
+      h("div", null,
+        h("span", { hidden: true, style: "font-size: 200px" }, categoryIcon(product)),
+        h("img", {
+          src: imageUrl(product, 400),
+          alt: product.name,
+          width: "400",
+          height: "400",
+          onError: showIconOnError,
+          onLoad: showImageOnLoad,
+        })
+      ),
       h("dl", null,
           infoRow("Identifiant", String(product.id)),
           infoRow("Catégorie", product.category),

@@ -5,6 +5,7 @@ import { link } from "../router/stackRouter";
 import { sortBy } from "../algorithms/sorting";
 import { linearSearch, binarySearchPrefix } from "../algorithms/search";
 import { useState, useEffect } from "../framework/hooks";
+import { imageUrl, categoryIcon, showIconOnError, showImageOnLoad } from "../data/images";
 
 type Criteria = "name" | "price" | "rating";
 type Order = "asc" | "desc";
@@ -64,6 +65,19 @@ function selectField(
 // Ligne du tableau
 function productRow(p: Product): VNode {
     return h("tr", { key: p.id },
+        h("td", null,
+            // Icône de secours, cachée tant que la photo se charge correctement
+            h("span", { hidden: true, style: "font-size: 40px" }, categoryIcon(p)),
+            h("img", {
+                src: imageUrl(p, 60),
+                alt: p.name,
+                width: "60",
+                height: "60",
+                loading: "lazy", // ne charge l'image que quand la ligne devient visible
+                onError: showIconOnError,
+                onLoad: showImageOnLoad,
+            })
+        ),
         h("td", null, link(`/product/${p.id}`, p.name)),
         h("td", null, p.category),
         h("td", null, `${p.price.toFixed(2)} €`),
@@ -195,7 +209,7 @@ export function productListPage(): VNode {
             ? h("p", null, "Aucun résultat")
             : h("table", null,
                 h("thead", null,
-                    h("tr", null, ["Nom", "Catégorie", "Prix", "Stock", "Note"].map((title) => h("th", null, title)))
+                    h("tr", null, ["Photo", "Nom", "Catégorie", "Prix", "Stock", "Note"].map((title) => h("th", null, title)))
                 ),
                 h("tbody", null, displayed.map(productRow))
             )
