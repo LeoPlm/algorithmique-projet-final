@@ -41,7 +41,7 @@ function infoRow(label: string, value: string): VNode[] {
 
 // Produit introuvable
 function notFoundView(rawId: string | undefined): VNode {
-  return h("div", null, backButton(),
+  return h("div", { className: "detail" }, backButton(),
       h("h1", null, "Produit introuvable"),
       h("p", null, `Aucun produit ne correspond à l'identifiant ${rawId ?? ""}`),
       link("/products", "Retour à la liste des produits")
@@ -55,27 +55,30 @@ export function productDetailPage(params: RouteParams): VNode {
     return notFoundView(params.id);
   }
 
-  return h("div", null, backButton(),
+  return h("div", { className: "detail" }, backButton(),
       h("h1", null, product.name),
-      // Photo du produit, avec l'icône de la catégorie en secours si elle ne charge pas
-      h("div", null,
-        h("span", { hidden: true, style: "font-size: 200px" }, categoryIcon(product)),
-        h("img", {
-          src: imageUrl(product, 400),
-          alt: product.name,
-          width: "400",
-          height: "400",
-          onError: showIconOnError,
-          onLoad: showImageOnLoad,
-        })
-      ),
-      h("dl", null,
-          infoRow("Identifiant", String(product.id)),
-          infoRow("Catégorie", product.category),
-          infoRow("Prix", `${product.price.toFixed(2)} €`),
-          infoRow("Stock", product.stock > 0 ? `${product.stock} en stock` : "Rupture de stock"),
-          infoRow("Note", `${product.rating.toFixed(1)} / 5`),
-          infoRow("Description", product.description)
+      // Photo à gauche, fiche à droite (voir .detail-body dans style.css)
+      h("div", { className: "detail-body" },
+        // Photo du produit, avec l'icône de la catégorie en secours si elle ne charge pas
+        h("div", { className: "detail-media" },
+          h("span", { hidden: true, style: "font-size: 160px" }, categoryIcon(product)),
+          h("img", {
+            src: imageUrl(product, 400),
+            alt: product.name,
+            width: "400",
+            height: "400",
+            onError: showIconOnError,
+            onLoad: showImageOnLoad,
+          })
+        ),
+        h("dl", null,
+            infoRow("Identifiant", String(product.id)),
+            infoRow("Catégorie", product.category),
+            infoRow("Prix", `${product.price.toFixed(2)} €`),
+            infoRow("Stock", product.stock > 0 ? `${product.stock} en stock` : "Rupture de stock"),
+            infoRow("Note", `${product.rating.toFixed(1)} / 5`),
+            infoRow("Description", product.description)
+        )
       )
   );
 }

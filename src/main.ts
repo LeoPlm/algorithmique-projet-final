@@ -1,3 +1,4 @@
+import "./style.css" // Feuille de style globale (Vite l'injecte dans la page)
 import type { Route } from "./types"
 import { createRouter } from "./router/stackRouter"
 import { homePage } from "./pages/home"

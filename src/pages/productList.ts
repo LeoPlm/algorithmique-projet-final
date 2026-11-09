@@ -246,7 +246,7 @@ function comparisonView(comparison: Comparison | null): VNode | null {
 
     const fastest = Math.min(...comparison.times.map((t) => t.ms));
 
-    return h("div", null,
+    return h("div", { className: "comparison" },
         h("h2", null, `Comparaison des 3 tris : ${comparison.count} produits, critère ${comparison.label}`),
         h("table", null,
             h("thead", null,
@@ -418,11 +418,15 @@ export function productListPage(): VNode {
     const headerCell = (col: { key: Criteria; label: string }): VNode => {
         const arrow = criteria === col.key ? (order === "asc" ? " ↑" : " ↓") : "";
 
-        return h("th", { onClick: onHeaderClick(col.key), style: "cursor: pointer; user-select: none" }, col.label + arrow);
+        return h("th", {
+            onClick: onHeaderClick(col.key),
+            className: criteria === col.key ? "sorted" : "", // colonne triée mise en couleur (style.css)
+            style: "cursor: pointer; user-select: none"
+        }, col.label + arrow);
     };
 
     return h("div", null, h("h1", null, "Liste des produits"),
-        h("div", null,
+        h("div", { className: "toolbar" },
             h("label", null, "Recherche ",
                 h("input", {
                     id: "search-input",
@@ -449,7 +453,7 @@ export function productListPage(): VNode {
                 onCategoryChange
             )
         ),
-        h("div", null,
+        h("div", { className: "toolbar" },
             selectField(
                 "sort-algorithm", "Algorithme de tri : ", sortAlgorithm,
                 [
@@ -478,22 +482,25 @@ export function productListPage(): VNode {
                 onPageSizeChange
             )
         ),
-        h("p", null, stats.join(' - ')),
+        h("p", { className: "stats" }, stats.join(' - ')),
         sorted.length === 0
             ? h("p", null, "Aucun résultat")
             : h("div", null,
-                h("table", null,
-                    h("thead", null,
-                        h("tr", null, h("th", null, "Photo"), columns.map(headerCell))
-                    ),
-                    h("tbody", null, displayed.map(productRow))
+                // Conteneur du tableau : bordure arrondie + défilement horizontal sur petit écran
+                h("div", { className: "table-wrapper" },
+                    h("table", null,
+                        h("thead", null,
+                            h("tr", null, h("th", null, "Photo"), columns.map(headerCell))
+                        ),
+                        h("tbody", null, displayed.map(productRow))
+                    )
                 ),
-                h("div", null,
+                h("div", { className: "pagination" },
                     h("button", { onClick: () => update({ page: currentPage - 1 }), disabled: currentPage <= 1 }, "← Précédent"), ` Page ${currentPage} / ${totalPages}`,
                     h("button", { onClick: () => update({ page: currentPage + 1 }), disabled: currentPage >= totalPages }, "Suivant →")
                 )
             ),
-            h("p", null,
+            h("p", { className: "compare" },
                 h("button", { onClick: onCompareClick }, "Comparer les 3 tris sur 5000 produits")
             ),
         comparisonView(comparison)

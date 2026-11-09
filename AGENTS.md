@@ -44,6 +44,7 @@ npx vite build      # build de production
 index.html
 src/
 ├── main.ts                    # point d'entrée : déclare les routes, démarre le routeur
+├── style.css                  # feuille de style globale (importée dans main.ts)
 ├── types/index.ts             # CONTRAT D'INTERFACE (voir §7) — source de vérité des types
 ├── data/
 │   ├── products.ts            # export const products: Product[] (+ generateProducts)
