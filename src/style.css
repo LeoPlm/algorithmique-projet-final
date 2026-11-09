@@ -1,0 +1,387 @@
+/* =====================================================================
+   Algo Framework — feuille de style globale
+   Importée une seule fois dans main.ts (Vite l'injecte dans la page).
+   ===================================================================== */
+
+/* ---------- Couleurs (variables CSS) : thème clair par défaut ---------- */
+:root {
+  --bg: #f4f6fb;
+  --surface: #ffffff;
+  --surface-alt: #f8f9fc;
+  --border: #e3e7ef;
+  --text: #1d2433;
+  --text-muted: #667085;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-soft: #eef0ff;
+  --success: #15803d;
+  --danger: #b42318;
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 4px 12px rgba(16, 24, 40, 0.06);
+  color-scheme: light;
+}
+
+/* Thème sombre automatique si le système de l'utilisateur est en mode sombre */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1320;
+    --surface: #171c2b;
+    --surface-alt: #1d2333;
+    --border: #2a3145;
+    --text: #e6e9f2;
+    --text-muted: #98a2b3;
+    --accent: #818cf8;
+    --accent-hover: #a5b4fc;
+    --accent-soft: #23284a;
+    --success: #4ade80;
+    --danger: #f87171;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25);
+    color-scheme: dark;
+  }
+}
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Conteneur centré de toutes les pages */
+#root {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+}
+
+h1 {
+  margin: 0 0 20px;
+  font-size: 1.9rem;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  margin: 28px 0 12px;
+  font-size: 1.2rem;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+/* ---------- Boutons ---------- */
+button {
+  font: inherit;
+  padding: 8px 16px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.05s;
+}
+
+button:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---------- Champs de formulaire ---------- */
+label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+input,
+select {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+#search-input {
+  min-width: 240px;
+}
+
+/* ---------- Carte générique ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 24px;
+}
+
+/* =====================================================================
+   Page d'accueil
+   ===================================================================== */
+.home-intro {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  max-width: 70ch;
+}
+
+/* Les 4 concepts du cours en grille de cartes */
+.concepts {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.concepts li {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px 16px;
+  color: var(--text-muted);
+}
+
+.concepts strong {
+  display: block;
+  color: var(--text);
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+
+.nav-links {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.nav-links a {
+  display: inline-block;
+  padding: 10px 16px;
+  background: var(--accent-soft);
+  border-radius: 8px;
+}
+
+/* =====================================================================
+   Page liste
+   ===================================================================== */
+
+/* Barres de contrôles (recherche, tri...) */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 12px;
+}
+
+/* Ligne des temps d'exécution */
+.stats {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  background: var(--accent-soft);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+/* Tableau : le conteneur défile horizontalement sur petit écran */
+.table-wrapper {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+th {
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* En-tête de colonne cliquable (tri) */
+th[style*="cursor"]:hover {
+  color: var(--accent);
+}
+
+th.sorted {
+  color: var(--accent);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: var(--surface-alt);
+}
+
+/* Miniature du produit */
+td img {
+  display: block;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 16px 0;
+  color: var(--text-muted);
+}
+
+/* Bouton "Comparer les 3 tris" + résultat */
+.compare {
+  margin-top: 24px;
+}
+
+.comparison {
+  margin-top: 8px;
+}
+
+.comparison table {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.comparison td {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+
+/* =====================================================================
+   Page détail
+   ===================================================================== */
+.detail > button {
+  margin-bottom: 20px;
+}
+
+/* Photo à gauche, infos à droite (empilées sur petit écran) */
+.detail-body {
+  display: grid;
+  grid-template-columns: minmax(0, 400px) 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .detail-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+.detail-media img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.detail-media span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* Les attributs "hidden" doivent l'emporter sur display: flex ci-dessus */
+[hidden] {
+  display: none !important;
+}
+
+/* Fiche : liste de définitions en 2 colonnes (libellé / valeur) */
+dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+dt,
+dd {
+  margin: 0;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+dt {
+  color: var(--text-muted);
+  font-weight: 500;
+  background: var(--surface-alt);
+}
+
+dl > :nth-last-child(-n + 2) {
+  border-bottom: none;
+}

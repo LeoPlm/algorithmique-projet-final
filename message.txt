@@ -1,0 +1,413 @@
+=====================================================================
+  SOUTENANCE — ALGO FRAMEWORK
+  Plan de présentation + questions probables (avec réponses)
+=====================================================================
+
+
+---------------------------------------------------------------------
+PARTIE 1 — PLAN DE PRÉSENTATION
+---------------------------------------------------------------------
+(durée indicative pour ~15 min : à adapter au temps donné)
+
+RÉPARTITION DES RÔLES (chacun présente ce qu'il a codé)
+  Leo   : intro, architecture, framework (h, render, diff/patch,
+          hooks), routeur                            → ~8 min
+  Yohan : démo, algorithmes (tris + recherches), pages, limites
+                                                     → ~7 min
+  Les deux : conclusion.
+
+  Pendant les questions : pas de répartition. Chacun doit être
+  capable de répondre seul à N'IMPORTE QUELLE question (le jury peut
+  interroger l'un sur la partie de l'autre).
+
+1. [LEO] Introduction (1 min)
+   - Le sujet : un mini-framework frontend en TypeScript, sans React ni
+     aucune librairie, qui applique les algos du cours.
+   - L'app : un catalogue de produits avec 3 pages.
+   - Contraintes : seulement Vite + TypeScript, aucune dépendance,
+     tsc --noEmit sans erreur.
+
+2. [YOHAN] Démo rapide de l'application (2-3 min)
+   - Accueil → liste → recherche (linéaire puis binaire) → changer
+     d'algo de tri → montrer les temps d'exécution → fiche produit
+     → bouton Retour + bouton retour du navigateur.
+   - Montrer l'icône de secours si une image ne charge pas.
+
+3. [LEO] Architecture du projet (1-2 min)
+   - Montrer l'arborescence : types / data / algorithms / framework /
+     router / pages.
+   - types/index.ts = contrat d'interface partagé entre nous deux.
+   - Le flux complet :
+       page (fonction) → h() → VNode → render()/diff()+patch() → DOM
+
+4. [LEO] Le framework — séance 3 : récursivité (3 min)
+   - h() : crée un objet JS (VNode), aplatit les enfants, retire
+     null/false. Pas récursive.
+   - render() : récursive, condition d'arrêt = texte → nœud texte.
+   - diff() / patch() (bonus) : compare récursivement ancien et nouvel
+     arbre, produit une liste de patches (TEXT, REPLACE, PROPS, CREATE,
+     REMOVE) appliqués au vrai DOM.
+   - Hooks useState / useEffect (bonus).
+
+5. [LEO] Le routeur — séance 2 : pile (2 min)
+   - Pile de chemins : navigate = push + pushState, back = pop.
+   - match() : découpe en segments, gère les paramètres (:id).
+   - Gestion du bouton retour du navigateur (popstate).
+
+6. [YOHAN] Les algorithmes — séances 4 et 5 (3-4 min)
+   - Recherche linéaire O(n) vs binaire O(log n) (+ préfixe).
+   - Tri insertion O(n²), rapide O(n log n) en moyenne, fusion
+     O(n log n) toujours.
+   - Démo des temps avec beaucoup de produits (generateProducts).
+   - Fiche produit : tri par id une fois puis recherche binaire.
+
+7. [YOHAN] Limites et améliorations possibles (1 min)
+   - diff compare les enfants par position, pas par key.
+   - L'état des hooks est perdu quand on change de page.
+   - Le bouton "suivant" du navigateur est traité comme un retour.
+   - Idées : état dans l'URL, pagination, tri par clic sur les colonnes.
+
+8. [LES DEUX] Conclusion (30 s) — ce qu'on a appris.
+
+
+
+---------------------------------------------------------------------
+PARTIE 2 — QUESTIONS PROBABLES (avec éléments de réponse)
+---------------------------------------------------------------------
+
+=== A. TYPESCRIPT ===
+
+Q1. C'est quoi un type générique ? Pourquoi <T> dans vos tris ?
+    → Un "type paramètre" : la fonction marche avec n'importe quel type
+      d'élément, et TypeScript garde le lien entre l'entrée et la sortie.
+      mergeSort<T>(arr: readonly T[], ...): T[] → si on donne des
+      Product, on récupère des Product. Un seul code pour tous les types,
+      sans perdre la vérification.
+
+Q2. Pourquoi readonly T[] dans les paramètres des tris ?
+    → Garantit qu'on ne modifie pas le tableau reçu (ça ne compile pas
+      si on essaie). On fait une copie ([...arr]) puis on trie la copie.
+
+Q3. Différence entre interface et type ?
+    → Les deux décrivent une forme. interface : pour des objets
+      (Product, VNode, Route). type : pour tout le reste aussi (unions
+      comme SortAlgorithm = 'insertion' | 'quick' | 'merge', alias de
+      fonction comme Compare<T>).
+
+Q4. C'est quoi une union de types littéraux ? Exemple ?
+    → SortAlgorithm = 'insertion' | 'quick' | 'merge' : la variable ne
+      peut valoir QUE l'une de ces chaînes. Une faute de frappe est une
+      erreur de compilation.
+
+Q5. Expliquez le type Patch et le "never" dans patch().
+    → Patch est une union discriminée : chaque variante a un champ type
+      différent ('TEXT', 'REMOVE'...). Dans le switch, TypeScript sait
+      quels champs existent selon le cas (narrowing). Dans le default,
+      p est de type never : si un jour on ajoute une variante sans la
+      gérer, ça ne compile plus. C'est une vérification d'exhaustivité.
+
+Q6. C'est quoi le narrowing (rétrécissement de type) ? Où l'utilisez-vous ?
+    → TypeScript affine le type après un test. Ex. dans render() :
+      if (typeof vnode === "string") → ici vnode est une string, après
+      c'est un VNode. Aussi instanceof HTMLElement dans patch, et le
+      switch sur p.type.
+
+Q7. Pourquoi unknown dans Props et pas any ?
+    → any désactive toute vérification. unknown oblige à tester le type
+      avant de s'en servir (ex. typeof value === "function" dans setProp).
+
+Q8. Pourquoi "import type" ?
+    → Option verbatimModuleSyntax du tsconfig : les imports de types
+      sont effacés à la compilation (ils n'existent pas en JS). import
+      type rend ça explicite.
+
+Q9. Que fait "as" (ex. e.target as HTMLInputElement) ? Est-ce risqué ?
+    → C'est une assertion : on dit à TypeScript "fais-moi confiance".
+      Aucune vérification à l'exécution, donc à utiliser seulement
+      quand on est sûr (ici, l'événement vient bien d'un <input>).
+
+Q10. Que signifient ?, ?? et ! ?
+    → key?: : propriété optionnelle. a ?? b : b si a est null/undefined
+      (props ?? {} dans h). x! : "pas null, je le garantis" (non-null
+      assertion).
+
+Q11. Que renvoie useState ? Comment c'est typé ?
+    → Un tuple [T, (value: T) => void] : la valeur et la fonction pour
+      la changer. On le déstructure : const [query, setQuery] = ...
+
+Q12. Que vérifie npx tsc --noEmit ?
+    → Le typage de tout le projet, sans produire de fichiers JS. C'est
+      Vite qui produit le JS ; tsc sert uniquement de vérificateur.
+      On a activé "strict": true dans le tsconfig (vérifications les
+      plus sévères : null/undefined, any implicite...) et ça compile
+      sans erreur.
+
+Q12 bis. Pourquoi binarySearch a deux génériques <T, K> ?
+    → T = type des éléments du tableau, K = type de ce qu'on cherche.
+      Dans la fiche produit, on cherche un nombre (l'id) dans un tableau
+      de Product : binarySearch(productsById, id, (p, target) =>
+      p.id - target). Pas besoin de fabriquer un faux Product.
+
+
+=== B. ALGORITHMES ===
+
+Q13. Expliquez le tri par insertion. Complexité ?
+    → On prend chaque élément et on le décale vers la gauche jusqu'à sa
+      place, comme des cartes en main. O(n²) en moyenne et au pire,
+      O(n) si déjà trié. Stable.
+
+Q14. Expliquez le tri rapide (quick sort). Complexité ?
+    → On choisit un pivot, on partitionne en < pivot / = pivot / > pivot,
+      puis on trie récursivement les deux côtés. O(n log n) en moyenne,
+      O(n²) au pire. Non stable.
+
+Q15. Comment choisissez-vous le pivot ? Pourquoi ?
+    → Médiane de trois (début, milieu, fin). Avec un pivot "premier
+      élément", un tableau déjà trié donne le pire cas O(n²) : la
+      médiane évite ça.
+
+Q16. Pourquoi une partition en 3 zones ?
+    → Les éléments égaux au pivot sont mis au milieu une fois pour toutes
+      et ne sont plus retriés : efficace quand il y a beaucoup de doublons
+      (ex. trier par catégorie ou par note).
+
+Q17. Pourquoi récurser sur la plus petite partie et boucler sur la grande ?
+    → La profondeur de la pile d'appels reste en O(log n), même dans un
+      mauvais cas : pas de risque de "stack overflow".
+
+Q18. Expliquez le tri fusion. Complexité ?
+    → Diviser en deux moitiés, trier chacune récursivement, fusionner deux
+      tableaux triés. O(n log n) dans TOUS les cas (log n niveaux de
+      découpe × O(n) de fusion par niveau). Mémoire O(n). Stable grâce
+      au <= dans merge.
+
+Q19. C'est quoi un tri stable ? Lesquels le sont ?
+    → Deux éléments égaux gardent leur ordre d'origine. Insertion et
+      fusion : oui. Rapide : non.
+
+Q20. Lequel est le meilleur ?
+    → Ça dépend : insertion pour un petit tableau ou presque trié ;
+      fusion si on veut une garantie O(n log n) et la stabilité ;
+      rapide souvent le plus rapide en pratique, sans mémoire en plus.
+
+Q21. Comment fonctionne votre fonction compare ? Comment faites-vous
+     l'ordre décroissant ?
+    → Convention : négatif si a < b, 0 si égaux, positif si a > b
+      (ex. (a, b) => a.price - b.price). Décroissant : on inverse les
+      arguments, (a, b) => base(b, a). Les tris ne changent pas.
+
+Q22. Recherche linéaire vs binaire ?
+    → Linéaire : on teste chaque élément, O(n), marche sur un tableau non
+      trié, trouve "le nom contient...". Binaire : on regarde le milieu
+      et on élimine la moitié à chaque tour, O(log n), mais le tableau
+      DOIT être trié selon le même critère.
+
+Q23. Votre recherche binaire trie avant de chercher : ce n'est pas
+     plus lent au final ?
+    → Si, pour une seule recherche : tri O(n log n) + recherche O(log n)
+      > linéaire O(n). C'est pour ça qu'on affiche le temps du tri
+      préalable à part. La binaire est rentable quand on trie UNE fois
+      et qu'on cherche souvent : c'est ce qu'on fait dans la fiche
+      produit (tri par id au chargement, puis O(log n) à chaque visite).
+
+Q24. Comment marche binarySearchPrefix ?
+    → Recherche binaire du premier nom >= au préfixe (O(log n)), puis on
+      avance tant que le nom commence par le préfixe (O(k), k résultats).
+      Total O(log n + k).
+
+Q25. Pourquoi ne pas utiliser localeCompare pour trier par nom ?
+    → La recherche binaire doit comparer EXACTEMENT comme le tri. On
+      normalise (minuscules, sans accents) et on compare avec < / >
+      des deux côtés. Sinon un "é" peut être rangé à un endroit et
+      cherché à un autre.
+
+Q26. Pourquoi 5000 produits ? Comment sont-ils créés ?
+    → Avec 8 produits tout est quasi instantané (≈ 0 ms) : on ne voit
+      aucune différence entre les tris. generateProducts crée des
+      produits dans une boucle (O(n)) avec des valeurs aléatoires. Avec
+      5000, l'insertion O(n²) devient nettement plus lente que la fusion
+      O(n log n). Les mesures varient d'un essai à l'autre (optimisations
+      du navigateur) : on compare des ordres de grandeur.
+
+Q26 bis. Pourquoi mettre en cache les noms normalisés (normalizedNames) ?
+    → norm() (minuscules + suppression des accents) coûte cher. Un tri
+      appelle compare des milliers / millions de fois : recalculer norm()
+      à chaque comparaison rendait l'insertion ~7x plus lente sur 5000
+      produits. On calcule chaque nom normalisé une seule fois au
+      chargement (O(n)), puis on le relit dans une Map.
+
+Q27. Pourquoi ne pas utiliser Array.sort / filter / indexOf ?
+    → Interdit par le sujet pour les algorithmes : le but est de les
+      écrire à la main.
+
+
+=== C. DOM, VIRTUAL DOM, RENDU (notre "React" maison) ===
+
+Q28. C'est quoi le DOM ? Et le Virtual DOM ?
+    → DOM : l'arbre des vrais éléments HTML affichés par le navigateur
+      (le modifier coûte cher). Virtual DOM : une copie légère de cet
+      arbre sous forme d'objets JS (VNode : type, props, children).
+      On compare deux VNodes et on ne touche au vrai DOM que là où
+      c'est nécessaire.
+
+Q29. Que fait h() ? Est-elle récursive ?
+    → Elle crée un VNode, aplatit les tableaux d'enfants (ex. résultat
+      d'un .map) et retire null/false (affichage conditionnel). Non
+      récursive : les enfants sont déjà des VNodes quand h les reçoit.
+
+Q30. Expliquez render(). Où est la récursivité ? La condition d'arrêt ?
+    → Une string → document.createTextNode (condition d'arrêt). Sinon
+      createElement, on applique les props, puis on appelle render sur
+      chaque enfant et on l'ajoute avec appendChild. O(n).
+
+Q31. Pourquoi pas de JSX ?
+    → JSX demande une étape de transformation (souvent liée à React).
+      On écrit directement ce que JSX produit : des appels à h().
+
+Q32. Comment gérez-vous les événements (onClick, onInput) ?
+    → Dans setProp : une prop "onXxx" qui est une fonction devient
+      addEventListener("xxx", ...). On garde le handler dans une
+      WeakMap pour pouvoir le retirer au rendu suivant.
+
+Q33. Pourquoi retirer l'ancien listener ? Pourquoi une WeakMap ?
+    → À chaque rendu les handlers sont de nouvelles fonctions : sans les
+      retirer, un clic déclencherait plusieurs fois l'action. WeakMap :
+      quand l'élément disparaît du DOM, l'entrée est libérée
+      automatiquement (pas de fuite mémoire).
+
+Q34. Pourquoi value et checked sont-ils posés comme propriétés et pas
+     comme attributs ?
+    → L'attribut HTML ne donne que la valeur initiale. La propriété JS
+      reflète ce que l'utilisateur a tapé/coché actuellement.
+
+Q35. Expliquez diff et patch.
+    → diff compare récursivement l'ancien et le nouveau VNode :
+      - deux textes différents → TEXT
+      - type de balise différent → REPLACE
+      - même balise → PROPS si des props ont changé, puis on compare
+        les enfants : communs → récursion, en plus → CREATE, en trop →
+        REMOVE.
+      Chaque patch a un chemin (path = liste d'index) pour retrouver le
+      nœud. patch() applique la liste au vrai DOM.
+
+Q36. Quel avantage concret du diff par rapport à tout re-render ?
+    → Le champ de recherche n'est pas recréé à chaque lettre : il garde
+      le focus et la position du curseur. Et on fait moins d'opérations
+      sur le DOM.
+
+Q37. Pourquoi les REMOVE sont-ils générés depuis la fin ?
+    → Si on supprime l'enfant 2 avant le 3, l'ancien 3 devient le 2 et
+      le chemin du patch suivant serait faux. En partant de la fin, les
+      index restants ne bougent pas.
+
+Q38. À quoi sert key ? L'utilisez-vous dans le diff ?
+    → key identifie un élément d'une liste (ex. id du produit). Notre
+      diff compare par position, pas par key (limite connue) : après un
+      tri, il met à jour le contenu des lignes au lieu de les déplacer.
+      Le résultat affiché est correct, mais moins optimal.
+
+Q39. Différence avec React ?
+    → Même idée (h ≈ createElement, VNode, diff, hooks), mais React
+      compare avec les keys, regroupe les mises à jour, a des
+      composants avec état propre... Le nôtre est volontairement simple.
+
+
+=== D. ROUTEUR EN PILE ===
+
+Q40. Pourquoi une pile pour la navigation ?
+    → L'historique est LIFO : la dernière page visitée est la première à
+      laquelle on revient. navigate = push, back = pop.
+
+Q41. Que font history.pushState et popstate ?
+    → pushState change l'URL dans la barre SANS recharger la page.
+      popstate est l'événement déclenché quand l'utilisateur clique sur
+      retour/suivant du navigateur : on pop la pile et on ré-affiche.
+
+Q42. Pourquoi preventDefault dans link() ?
+    → Sinon le clic sur <a href> recharge toute la page (et perd l'état).
+      On garde quand même href pour que le lien soit un vrai lien
+      (survol, clic molette).
+
+Q43. Comment marche match() ? Exemple avec /product/3 ?
+    → On découpe la route et l'URL sur "/" : ["", "product", ":id"] et
+      ["", "product", "3"]. Même nombre de segments ; un segment qui
+      commence par ":" est un paramètre → params.id = "3". Sinon les
+      segments doivent être identiques. Aucune route → null → page 404.
+
+Q44. Pourquoi params.id est une string ?
+    → Tout ce qui vient de l'URL est du texte. On le convertit avec
+      Number() et on vérifie que c'est un entier avant de chercher.
+
+Q45. Que se passe-t-il si on rafraîchit la page sur /product/3 ?
+    → La pile repart avec ce seul chemin et la page s'affiche (Vite
+      renvoie index.html pour toutes les routes en dev). En production,
+      il faudrait configurer le serveur pareil.
+
+Q46. Pourquoi createRouter() et une variable router exportée ?
+    → Les pages ont besoin du routeur (link, back) et main.ts a besoin
+      des pages : créer le routeur dans main et l'importer dans les
+      pages ferait un import circulaire. On le crée via createRouter et
+      les pages lisent la variable exportée.
+
+Q47. Limites du routeur ?
+    → Le bouton "suivant" du navigateur est traité comme un retour
+      (popstate ne dit pas le sens). Cas géré : si on arrive
+      directement sur une page (pile d'une seule page), notre bouton
+      Retour va à l'accueil au lieu de quitter le site.
+
+
+=== E. HOOKS (useState / useEffect) ===
+
+Q48. À quoi sert useState ? Comment marche le vôtre ?
+    → Mémoriser une valeur entre deux rendus et ré-afficher quand elle
+      change. Chaque appel prend une "case" dans un tableau (index 0,
+      1, 2...). setState modifie la case puis relance le rendu
+      (refresh → diff → patch).
+
+Q49. Pourquoi ne jamais appeler un hook dans un if ou une boucle ?
+    → Les hooks sont retrouvés par leur ORDRE d'appel. Si un appel est
+      sauté, les index se décalent et chaque hook lit la valeur d'un
+      autre.
+
+Q50. À quoi sert useEffect ? Et le tableau de dépendances ?
+    → Lancer du code APRÈS l'affichage (ex. changer document.title). Il
+      n'est relancé que si une dépendance a changé ([query] → seulement
+      quand la recherche change). Sans tableau : à chaque rendu.
+
+Q51. Pourquoi l'état est-il perdu quand on revient sur la liste ?
+    → resetHooks() vide les états à chaque changement de page.
+      Amélioration : stocker l'état dans l'URL (?q=...&sort=...).
+
+Q52. Pourquoi Object.is dans setState ?
+    → Si la nouvelle valeur est identique, on ne relance pas un rendu
+      inutile.
+
+
+=== F. QUESTIONS GÉNÉRALES / PROJET ===
+
+Q53. Pourquoi Vite si on n'a pas le droit aux librairies ?
+    → Vite est un outil de développement (serveur + compilation TS), pas
+      une librairie présente dans l'app. Aucun code de Vite ne tourne
+      dans notre page.
+
+Q54. Comment avez-vous testé vos tris ?
+    → Sur des tableaux aléatoires, en comparant le résultat (et en
+      vérifiant qu'il était bien trié). C'est comme ça qu'on a trouvé un
+      bug dans le tri rapide (une boucle infinie à cause d'un double ++).
+
+Q55. Comment avez-vous travaillé à deux ?
+    → Contrat d'interface commun (types/index.ts), branche dev, Git.
+
+Q56. Si vous aviez plus de temps ?
+    → Diff avec les keys, état dans l'URL, pagination, filtre par
+      catégorie, tri en cliquant sur les colonnes.
+
+
+---------------------------------------------------------------------
+À FAIRE AVANT LA SOUTENANCE
+---------------------------------------------------------------------
+- Relancer npx tsc --noEmit juste avant.
+- Répéter la démo : avec 5000 produits, choisir "Insertion" puis
+  "Fusion" pour montrer la différence de temps.
+- Chacun révise TOUTES les questions, en insistant sur la partie qu'il
+  n'a pas codée. Entraînez-vous à vous interroger mutuellement.
