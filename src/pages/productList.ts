@@ -16,11 +16,14 @@ const norm = (s: string): string => s.toLowerCase().normalize("NFD").replace(/[\
 // Comparaison des chaînes simples
 const compare = (x: string, y: string): number => (x < y ? -1 : x > y ? 1 : 0);
 
-// Noms normalisés calculés UNE seule fois au chargement (O(n)).
+// Cache des noms / catégories normalisés : chaque valeur est calculée UNE seule fois,
+// à la première utilisation, puis relue dans le cache.
 // Sinon norm() serait recalculé à chaque comparaison : avec 5000 produits, le tri par insertion
 // en fait des millions (environ 7x plus lent mesuré).
-const normalizedNames = new Map<Product, string>();
-const normalizedCategories = new Map<Product, string>();
+// WeakMap : quand un produit n'est plus utilisé (ex. les 5000 produits générés par "Comparer les 3 tris"),
+// son entrée est libérée automatiquement → pas de fuite mémoire.
+const normalizedNames = new WeakMap<Product, string>();
+const normalizedCategories = new WeakMap<Product, string>();
 
 const normName = (p: Product): string => {
     let key = normalizedNames.get(p);
@@ -70,7 +73,7 @@ function buildComparator(criteria: Criteria, order: Order): Compare<Product> {
 const searchModes: readonly SearchAlgorithm[] = ["linear", "binary"];
 const sortAlgorithms: readonly SortAlgorithm[] = ["insertion", "quick", "merge"];
 const orders: readonly Order[] = ["asc", "desc"];
-const pageSizes: readonly Number[] = [10, 20];
+const pageSizes: readonly number[] = [10, 20];
 
 // Colonnes triables : chaque en-tête est cliquable et trie sur sa clé (sauf Photo)
 const columns: Array<{ key: Criteria; label: string }> = [
@@ -415,7 +418,7 @@ export function productListPage(): VNode {
     const headerCell = (col: { key: Criteria; label: string }): VNode => {
         const arrow = criteria === col.key ? (order === "asc" ? " ↑" : " ↓") : "";
 
-        return h("th", { onClick: onHeaderClick(col.key), style: "cursor: pointer; user-pointer: none" }, col.label + arrow);
+        return h("th", { onClick: onHeaderClick(col.key), style: "cursor: pointer; user-select: none" }, col.label + arrow);
     };
 
     return h("div", null, h("h1", null, "Liste des produits"),
