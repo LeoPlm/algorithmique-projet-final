@@ -7,6 +7,13 @@ const imageKeywords: Record<string, string> = {
     "Écouteurs": "earphones", "Ampli": "amplifier",
     "Lampe": "lamp", "Bouilloire": "kettle", "Ventilateur": "fan",
     "Grille-pain": "toaster", "Aspirateur": "vacuum-cleaner",
+    "Ordinateur portable": "laptop", "Clé USB": "usb-stick",
+    "Platine vinyle": "turntable",
+    "Bougie": "candle", "Miroir": "mirror", "Plaid": "blanket",
+    "Cafetière": "coffee", "Théière": "teapot", "Mixeur": "blender",
+    "Casserole": "saucepan", "Poêle": "frying-pan", "Robot pâtissier": "stand-mixer",
+    "Manette": "gamepad", "Console": "game-console", "Volant": "steering-wheel",
+    "Tapis de souris": "mousepad",
 }
 
 export function imageUrl(p: Product, size: number): string {
@@ -23,6 +30,8 @@ const categoryIcons: Record<string, string> = {
     Informatique: "💻",
     Audio: "🎧",
     Maison: "🏠",
+    Cuisine: "🍳",
+    Gaming: "🎮",
 }
 
 export function categoryIcon(p: Product): string {
